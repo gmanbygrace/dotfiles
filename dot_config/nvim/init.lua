@@ -318,7 +318,7 @@ require("lazy").setup({
 
 				-- Document existing key chains
 				spec = {
-					{ "<leader>c", group = "[C]ode", mode = { "n", "x" } },
+					-- { "<leader>c", group = "[C]ode", mode = { "n", "x" } },
 					{ "<leader>d", group = "[D]ocument" },
 					{ "<leader>r", group = "[R]ename" },
 					{ "<leader>s", group = "[S]earch" },
@@ -1022,4 +1022,37 @@ require("lazy").setup({
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
 
-vim.opt["tabstop"] = 4
+-- tab and indent opts
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = true
+
+-- indents
+vim.opt.autoindent = true
+vim.opt.copyindent = true
+vim.opt.smartindent = true
+
+-- knap
+
+_G.xelatexcheck = function()
+	local isxelatex = false
+	local fifteenlines = vim.api.nvim_buf_get_lines(0, 0, 15, false)
+	for l, line in ipairs(fifteenlines) do
+		if
+			(line:lower():match("xelatex"))
+			or (line:match("\\usepackage[^}]*mathspec"))
+			or (line:match("\\usepackage[^}]*fontspec"))
+			or (line:match("\\usepackage[^}]*unicode-math"))
+		then
+			isxelatex = true
+			break
+		end
+	end
+	if isxelatex then
+		local knapsettings = vim.b.knap_settings or {}
+		knapsettings["textopdf"] = "xelatex -interaction=batchmode -halt-on-error -synctex=1 %docroot%"
+		vim.b.knap_settings = knapsettings
+	end
+end
+vim.api.nvim_create_autocmd({ "BufRead" }, { pattern = { "*.tex" }, callback = xelatexcheck })
